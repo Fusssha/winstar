@@ -11,6 +11,11 @@
     { "source": "/socket.io/(.*)", "destination": "server.js" }
   ]
 }
+{
+  "rewrites": [
+    { "source": "/socket.io/(.*)", "destination": "server.js" }
+  ]
+}
   "routes": [
     {
       "src": "/api/(.*)",
