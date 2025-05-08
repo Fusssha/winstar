@@ -187,6 +187,10 @@ function startCoinGame(roomId) {
 function flipCoin(roomId) {
   const room = rooms.get(roomId);
   if (!room) return;
+  const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
+});
 
   // Анимация броска (3 секунды)
   io.to(roomId).emit('coinFlipping');
