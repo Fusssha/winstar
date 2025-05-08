@@ -15,11 +15,10 @@ const cors = require('cors');
 // Настройка CORS и Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: "*", // Разрешить все источники для теста (замените на ваш домен в продакшене)
+    origin: "*", // Для теста разрешите все источники (в продакшене укажите ваш домен)
     methods: ["GET", "POST"],
-    credentials: true
   },
-  transports: ['websocket', 'polling']
+  transports: ["websocket", "polling"], // Явно указываем transports
 });
 
 // Middleware
@@ -253,6 +252,8 @@ setInterval(() => {
       }
       rooms.delete(roomId);
     }
+    // В конце server.js
+module.exports = server; // или app, если используете только Express
   });
 
   io.emit('roomsUpdated', Array.from(rooms.values()));
