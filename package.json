@@ -1,3 +1,6 @@
+"engines": {
+  "node": ">=16.x"
+}
 {
     "name": "casino-app",
     "version": "1.0.0",
