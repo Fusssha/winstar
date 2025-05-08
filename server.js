@@ -1,40 +1,37 @@
+// Добавьте в начало server.js
+const { Server } = require('socket.io');
+const { createServer } = require('http');
+
+const app = express();
+const server = createServer(app);
+
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const path = require('path');
 const cors = require('cors');
 
-const app = express();
-const server = http.createServer(app);
 
-// Настройка CORS
-app.use(cors());
-app.use(express.json());
-
-// Отдача статических файлов из папки public
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Основной маршрут
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Настройка Socket.IO
+// Настройка CORS и Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: [
-      "https://winstar.onrender.com/",
-      "http://localhost:3000",
-      process.env.CLIENT_URL
-    ].filter(Boolean),
-    methods: ["GET", "POST"]
-  }
+    origin: "*", // Разрешить все источники для теста (замените на ваш домен в продакшене)
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
 });
 
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
 // Хранилище данных
-const rooms = new Map();
-const players = new Map();
+const rooms = new Map(); // roomId -> roomData
+const players = new Map(); // socketId -> playerData
+const activeGames = new Map(); // gameId -> gameData
+
 // Генерация ID комнаты
 function generateRoomId() {
   return Math.random().toString(36).substr(2, 8).toUpperCase();
@@ -187,10 +184,6 @@ function startCoinGame(roomId) {
 function flipCoin(roomId) {
   const room = rooms.get(roomId);
   if (!room) return;
-  const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
-});
 
   // Анимация броска (3 секунды)
   io.to(roomId).emit('coinFlipping');
