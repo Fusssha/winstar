@@ -2,35 +2,39 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const path = require('path');
 const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 
-// Настройка CORS и Socket.IO
+// Настройка CORS
+app.use(cors());
+app.use(express.json());
+
+// Отдача статических файлов из папки public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Основной маршрут
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Настройка Socket.IO
 const io = socketIo(server, {
   cors: {
     origin: [
-      "https://winstar.onrender.com",
+      "https://winstar.onrender.com/",
       "http://localhost:3000",
       process.env.CLIENT_URL
     ].filter(Boolean),
-    methods: ["GET", "POST"],
-    credentials: true
-  },
-  transports: ['websocket', 'polling']
+    methods: ["GET", "POST"]
+  }
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public'));
-
 // Хранилище данных
-const rooms = new Map(); // roomId -> roomData
-const players = new Map(); // socketId -> playerData
-const activeGames = new Map(); // gameId -> gameData
-
+const rooms = new Map();
+const players = new Map();
 // Генерация ID комнаты
 function generateRoomId() {
   return Math.random().toString(36).substr(2, 8).toUpperCase();
