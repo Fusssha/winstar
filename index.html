@@ -455,20 +455,30 @@
 
 <script>
     // В начале скрипта добавьте:
-const socket = io('https://winstar.onrender.com/'); // Замените на ваш URL сервера
+// Замените строку подключения на ваш домен Vercel
+const socket = io('https://win-star-drop.vercel.app/', {
+  transports: ['websocket']
+});// Замените на ваш URL сервера
 
 // Добавьте обработчики событий
 socket.on('connect', () => {
   console.log('Connected to server');
 });
 
+socket.on('connect_error', (error) => {
+  console.error('Connection Error:', error);
+  showMessage('Ошибка подключения к серверу');
+});
+
 socket.on('roomUpdate', (roomData) => {
   // Обновление UI при изменении состояния комнаты
 });
 
+
 socket.on('gameStart', (gameData) => {
   // Начало игры
 });
+
 
 socket.on('gameResult', (result) => {
   // Отображение результата игры
@@ -893,10 +903,10 @@ socket.on('gameResult', (result) => {
         if (userBalance < bet) {
             showMessage('Недостаточно средств!');
             return;
-            socket.emit('createRoom', {
-            bet,
-            playerId: userId,
-            playerName: userNameElement.textContent
+    socket.emit('createRoom', {
+        bet: parseInt(coinBetInput.value),
+        playerId: userId,
+        playerName: userNameElement.textContent
         });
         }
 
@@ -983,6 +993,34 @@ socket.on('gameResult', (result) => {
         coinSwapSideBtn.disabled = false;
         coinSwapSideBtn.textContent = 'Предложить поменяться сторонами';
     }
+    socket.emit('swapSides', {
+  roomId: activeCoinSession.id
+});
+socket.on('roomCreated', (room) => {
+  activeCoinSession = room;
+  renderCoinSessions();
+});
+
+socket.on('roomsUpdated', (rooms) => {
+  coinSessions = rooms;
+  renderCoinSessions();
+});
+
+socket.on('gameStarted', (room) => {
+  startCoinGame();
+});
+
+socket.on('countdown', ({ countdown }) => {
+  coinCountdown.textContent = `${countdown} сек`;
+});
+
+socket.on('coinFlipping', () => {
+  // Показать анимацию броска
+});
+
+socket.on('gameResult', (result) => {
+  // Показать результат игры
+});
 
     function swapCoinSides() {
         if (!activeCoinSession) return;
